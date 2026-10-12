@@ -1,7 +1,11 @@
 
 public class main{
     public static void main(String[]args){
-        String ip = "192.168.1.130/26"  ;
+        if(args.length == 0){
+            System.out.println("Theres is no ip addresses i can check! Text something and try again");
+            return;
+        }
+        String ip = args[0] ;
         String[] prefix = ip.split("/");
         String[] parts = prefix[0].split("\\.");
 
@@ -18,10 +22,17 @@ public class main{
         int network = bit & mask;
         int broadcast = network | ~mask;
 
+        int firstHost = network + 1;
+        int lastHost = broadcast - 1;
+        int hostCount = (1 << (32 - prefixLength)) - 2;
+
         System.out.println("IP Address: " + toDotted(bit) + "   " + Integer.toBinaryString(bit));
         System.out.println("Subnet Mask: " + toDotted(mask) + "   " + Integer.toBinaryString(mask));
         System.out.println("Network: " + toDotted(network) + "   " + Integer.toBinaryString(network));
         System.out.println("Broadcast: "+ toDotted(broadcast) + "   " + Integer.toBinaryString(broadcast));
+        System.out.println("First host IP: " + toDotted(firstHost));
+        System.out.println("Last host IP: " + toDotted(lastHost));
+        System.out.println("Host capacity: " + hostCount);
 
     }
     static String toDotted (int x){
