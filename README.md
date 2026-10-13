@@ -8,7 +8,7 @@ A LAN scanner written in plain Java, built step by step while I learn networking
 ## What it does now
 Takes an IPv4 address in CIDR notation as an argument and calculates the subnet
 mask, network address, broadcast address, host range and host count using
-bitwise operations.
+bitwise operations. Invalid input is rejected with an explanatory message.
 
 Example output for `192.168.1.130/26`:
 
@@ -23,7 +23,7 @@ Host capacity: 62
 ```
 
 ## Planned
-- Input validation
+- Correct results for the `/0`, `/31` and `/32` prefixes
 - Device discovery on the local network
 - MAC address and vendor lookup
 - Port scanning

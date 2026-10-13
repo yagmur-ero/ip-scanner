@@ -7,14 +7,42 @@ public class main{
         }
         String ip = args[0] ;
         String[] prefix = ip.split("/");
+        if(!(prefix.length == 2)){
+            System.out.println("Please write the ip address with the prefix like this => 192.168.1.130/26");
+            return;
+        }
         String[] parts = prefix[0].split("\\.");
+        if(!(parts.length == 4)){
+            System.out.println("There should be 3 dots on your ip address to separate 4 different parts.");
+            return;
+        }
+        int prefixLength;
 
-        int prefixLength = Integer.parseInt(prefix[1]);  
+        try {
+            prefixLength = Integer.parseInt(prefix[1]);
+        } catch (NumberFormatException e){
+            System.out.println("The prefix must be a number!");
+            return;
+
+        }  
+        if(prefixLength<0 || prefixLength>32){
+            System.out.println("The prefix number should be between 0 and 32.");
+            return;
+        }
 
         int [] nums=  new int[parts.length];
 
-        for(int i = 0; i< parts.length; i++){
-            nums[i] = Integer.parseInt(parts[i]);
+        for(int i = 0; i< parts.length; i++){ 
+            try {
+                nums[i] = Integer.parseInt(parts[i]); 
+            }catch (NumberFormatException e){
+                System.out.println("That is not a number");
+                return;
+            }
+            if(nums[i]>255 || nums[i]<0){
+                System.out.println("The numbers you put for ip must be in between 0 and 255");
+                return;
+            }
         }
         int bit = (nums[0] << 24) | (nums[1] << 16) | (nums[2] << 8) | (nums[3]);
         int mask = (-1) << (32 - prefixLength);
