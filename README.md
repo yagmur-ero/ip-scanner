@@ -10,6 +10,9 @@ Takes an IPv4 address in CIDR notation as an argument and calculates the subnet
 mask, network address, broadcast address, host range and host count using
 bitwise operations. Invalid input is rejected with an explanatory message.
 
+It then pings the first host of the network (usually the router) and reports
+whether it responded.
+
 Example output for `192.168.1.130/26`:
 
 ```
@@ -23,7 +26,6 @@ Host capacity: 62
 ```
 
 ## Planned
-- Correct results for the `/0`, `/31` and `/32` prefixes
 - Device discovery on the local network
 - MAC address and vendor lookup
 - Port scanning
