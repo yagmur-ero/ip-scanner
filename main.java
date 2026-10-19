@@ -80,20 +80,30 @@ public class main {
         System.out.println("Last host IP: " + toDotted(lastHost));
         System.out.println("Host capacity: " + hostCount);
 
-        String target = toDotted(firstHost);
-        try {
+        if(hostCount> 1024){
+            System.out.println("This network is too big for scanning.");
+            return;
+        }
+        
+        int noResponse = 0;
+        for(int i=0; i< hostCount; i++){
+            int current = firstHost + i;
+            String target = toDotted(current);
+            try {
             InetAddress address = InetAddress.getByName(target);
             boolean reachable = address.isReachable(1000);
 
             if (reachable) {
                 System.out.println(target + " is reachable");
             } else {
-                System.out.println(target + " didn't respond");
+                noResponse++;
             }
         } catch (IOException e) {
             System.out.println("Couldn't check " + target);
         }
+        }
 
+        System.out.println(noResponse + " address didn't respond");
     }
 
     static String toDotted(int x) {
