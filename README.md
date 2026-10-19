@@ -13,20 +13,8 @@ A LAN scanner written in plain Java, built step by step while I learn networking
 - Pings every host in the network one by one and lists the ones that respond.
   Networks with more than 1024 hosts are not scanned.
 
-Example output on a phone hotspot network:
-
-```
-IP Address: 172.20.10.6   10101100000101000000101000000110
-Subnet Mask: 255.255.255.240   11111111111111111111111111110000
-Network: 172.20.10.0   10101100000101000000101000000000
-Broadcast: 172.20.10.15   10101100000101000000101000001111
-First host IP: 172.20.10.1
-Last host IP: 172.20.10.14
-Host capacity: 14
-172.20.10.1 is reachable
-172.20.10.6 is reachable
-12 address didn't respond
-```
+For each value the program prints both the dotted form and the binary form,
+followed by the list of hosts that responded and the number that did not.
 
 Some devices, such as Windows computers with the firewall on, do not answer
 ping, so a host that does not respond is not necessarily free.
@@ -46,8 +34,11 @@ javac main.java
 ```
 
 ```bash
-java main 192.168.1.130/26
+java main <ip-address>/<prefix>
 ```
+
+Use your own IP address and the prefix that matches your subnet mask
+(for example `/24` for `255.255.255.0`).
 
 ## Responsible use
 Only scan networks that you own or have permission to test.
