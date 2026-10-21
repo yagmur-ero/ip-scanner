@@ -1,6 +1,11 @@
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class main {
 
@@ -80,30 +85,56 @@ public class main {
         System.out.println("Last host IP: " + toDotted(lastHost));
         System.out.println("Host capacity: " + hostCount);
 
-        if(hostCount> 1024){
+        if (hostCount > 1024) {
             System.out.println("This network is too big for scanning.");
             return;
         }
-        
-        int noResponse = 0;
-        for(int i=0; i< hostCount; i++){
+
+        AtomicInteger noResponse = new AtomicInteger(0);
+        ExecutorService pool = Executors.newFixedThreadPool(50);
+
+        for (int i = 0; i < hostCount; i++) {
             int current = firstHost + i;
             String target = toDotted(current);
+
+            pool.submit(() -> {
+
             try {
-            InetAddress address = InetAddress.getByName(target);
-            boolean reachable = address.isReachable(1000);
+                InetAddress address = InetAddress.getByName(target);
+                boolean reachable = address.isReachable(1000);
 
-            if (reachable) {
-                System.out.println(target + " is reachable");
-            } else {
-                noResponse++;
+                if (reachable) {
+                    System.out.println(target + " is reachable");
+                } else {
+                    noResponse.incrementAndGet();
+                }
+            } catch (IOException e) {
+                System.out.println("Couldn't check " + target);
             }
-        } catch (IOException e) {
-            System.out.println("Couldn't check " + target);
+        });
         }
+        pool.shutdown();
+
+        try{
+            pool.awaitTermination(1, TimeUnit.MINUTES);
+        }catch(InterruptedException e){
+            System.out.println("scan was interrupted");
         }
 
-        System.out.println(noResponse + " address didn't respond");
+        System.out.println(noResponse.get() + " addresses didn't respond");
+
+        try{
+            Process process = new ProcessBuilder("arp", "-a").start();
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while((line = reader.readLine()) !=null){
+                System.out.println(line);
+            }
+        } catch (IOException e){
+            System.out.println("Couldn't read the ARP table");
+        }
     }
 
     static String toDotted(int x) {

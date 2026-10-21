@@ -10,7 +10,8 @@ A LAN scanner written in plain Java, built step by step while I learn networking
   subnet mask, network address, broadcast address, host range and host count
   using bitwise operations. `/31` and `/32` networks are handled as well.
 - Rejects invalid input with an explanatory message.
-- Pings every host in the network one by one and lists the ones that respond.
+- Pings every host in the network in parallel (50 threads) and lists the
+  ones that respond.
   Networks with more than 1024 hosts are not scanned.
 
 For each value the program prints both the dotted form and the binary form,
@@ -20,7 +21,6 @@ Some devices, such as Windows computers with the firewall on, do not answer
 ping, so a host that does not respond is not necessarily free.
 
 ## Planned
-- Faster scanning with threads
 - MAC address and vendor lookup
 - Port scanning
 - A report of risky open ports with recommendations
