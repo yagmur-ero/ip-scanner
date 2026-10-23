@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +54,9 @@ public class main {
                 return;
             }
         }
+
+        //calculating the ip mask, network & broadcast adresses also putting the exceptions for /31 and /32 prefixes
+
         int bit = (nums[0] << 24) | (nums[1] << 16) | (nums[2] << 8) | (nums[3]);
         int mask;
         if (prefixLength == 0) {
@@ -90,21 +94,31 @@ public class main {
             return;
         }
 
+        //atomic int to prevent miscalculations
+
         AtomicInteger noResponse = new AtomicInteger(0);
         ExecutorService pool = Executors.newFixedThreadPool(50);
+
+        //used synchronizedlist to prevent miscalculations
+
+        List<Integer> found = Collections.synchronizedList(new ArrayList<>());
 
         for (int i = 0; i < hostCount; i++) {
             int current = firstHost + i;
             String target = toDotted(current);
 
+        //putting a lambda function for the threads, to use them sending ping when needed
+
+
             pool.submit(() -> {
+        
 
             try {
                 InetAddress address = InetAddress.getByName(target);
                 boolean reachable = address.isReachable(1000);
 
                 if (reachable) {
-                    System.out.println(target + " is reachable");
+                    found.add(current);
                 } else {
                     noResponse.incrementAndGet();
                 }
@@ -115,6 +129,8 @@ public class main {
         }
         pool.shutdown();
 
+        //put awaittermination because the threads might continue to send pings into devices after the loop ended
+
         try{
             pool.awaitTermination(1, TimeUnit.MINUTES);
         }catch(InterruptedException e){
@@ -123,17 +139,42 @@ public class main {
 
         System.out.println(noResponse.get() + " addresses didn't respond");
 
+        Map<String, String> macTable = new HashMap<>();
+
         try{
             Process process = new ProcessBuilder("arp", "-a").start();
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()));
 
+
             String line;
             while((line = reader.readLine()) !=null){
-                System.out.println(line);
+                if(!line.contains("dynamic")) {
+                    continue;
+                }
+                String[] columns = line.trim().split("\\s+");
+                macTable.put(columns[0], columns[1]);
             }
+
         } catch (IOException e){
             System.out.println("Couldn't read the ARP table");
+        }
+
+        //this for loop will help us to sort the ip adresses and change them from int to string for mac address key matching
+
+        Collections.sort(found);
+        System.out.println("Devices found:");
+        for(int host : found){
+            String dotted = toDotted(host);
+            String mac;
+            if( host == bit){
+                mac = "this computer";
+            }else if (macTable.containsKey(dotted)){
+                mac = macTable.get(dotted);
+            }else{
+                mac = "unknown";
+            }
+            System.out.println(dotted + "  " + mac);
         }
     }
 
