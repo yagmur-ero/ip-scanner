@@ -14,6 +14,8 @@ A LAN scanner written in plain Java, built step by step while I learn networking
   ARP table and lists the hosts that responded, sorted, with their MAC
   addresses.
   Networks with more than 1024 hosts are not scanned.
+- Marks private (randomized) MAC addresses, which phones and newer
+  Windows versions use instead of their real hardware address.
 
 For each value the program prints both the dotted form and the binary form,
 followed by the list of hosts that responded and the number that did not.

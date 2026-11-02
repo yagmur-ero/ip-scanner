@@ -89,6 +89,8 @@ public class main {
         System.out.println("Last host IP: " + toDotted(lastHost));
         System.out.println("Host capacity: " + hostCount);
 
+        //finding devices
+
         if (hostCount > 1024) {
             System.out.println("This network is too big for scanning.");
             return;
@@ -139,6 +141,8 @@ public class main {
 
         System.out.println(noResponse.get() + " addresses didn't respond");
 
+        //finding MAC addresses & ARP request
+
         Map<String, String> macTable = new HashMap<>();
 
         try{
@@ -167,16 +171,24 @@ public class main {
         for(int host : found){
             String dotted = toDotted(host);
             String mac;
+            String note = "";
             if( host == bit){
                 mac = "this computer";
             }else if (macTable.containsKey(dotted)){
                 mac = macTable.get(dotted);
+            //this will change the first byte of the MAC address from hex into a number
+            int firstByte = Integer.parseInt(mac.substring(0,2), 16);  
+            boolean isRandomized = (firstByte & 0x02) !=0;
+            if(isRandomized){
+                note = "private (randomized) MAC";
+            }
             }else{
                 mac = "unknown";
             }
-            System.out.println(dotted + "  " + mac);
+            System.out.println(dotted + "  " + mac + "  " + note);
         }
     }
+
 
     static String toDotted(int x) {
         int first = (x >>> 24) & 0xFF;
